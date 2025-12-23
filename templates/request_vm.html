@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Request VM</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+      {{ form.vm_type.label }}<br>
+      {{ form.vm_type() }}
+    </div>
+    <div>
+      {{ form.message.label }}<br>
+      {{ form.message(rows=4, cols=50) }}
+    </div>
+    <div>
+      {{ form.submit() }}
+    </div>
+  </form>
+{% endblock %}

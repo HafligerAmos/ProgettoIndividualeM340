@@ -1,0 +1,7 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+proxmoxer==2.0.1
+WTForms==3.0.1
+requests==2.31.0

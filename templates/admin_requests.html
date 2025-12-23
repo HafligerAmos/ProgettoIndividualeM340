@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>VM Requests</h2>
+  <p class="text-muted">Admins can approve or reject requests. Admins cannot submit requests here.</p>
+  <div class="card p-3">
+    <div class="table-responsive">
+      <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Type</th>
+        <th>Message</th>
+        <th>Created</th>
+        <th>Status</th>
+        <th>VM / SSH</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>
+          <div class="fw-semibold">{{ r.requester.username }}</div>
+          <div class="text-muted small">{{ r.requester.email }}</div>
+        </td>
+        <td>{{ r.vm_type }}</td>
+        <td>{{ r.message }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          {% if r.status == 'pending' %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% elif r.status == 'approved' %}
+            <span class="badge bg-success">Approved</span>
+          {% elif r.status == 'rejected' %}
+            <span class="badge bg-danger">Rejected</span>
+          {% elif r.status == 'failed' %}
+            <span class="badge bg-secondary">Failed</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ r.status }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if r.vm %}
+            <div class="small">VM: {{ r.vm.name }} ({{ r.vm.ip or 'ip pending' }})</div>
+            <div class="small text-muted">SSH: {{ r.vm.ssh_user }} / {{ r.vm.ssh_password }}</div>
+            <form method="POST" action="{{ url_for('refresh_vm_ip', vm_id=r.vm.id) }}" class="mt-1">
+              <button type="submit" class="btn btn-sm btn-outline-secondary">Ottieni IP</button>
+            </form>
+          {% else %}
+            <span class="text-muted small">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if r.status == 'pending' %}
+          <form method="POST" action="{{ url_for('admin_approve_request', request_id=r.id) }}" style="display:inline">
+            <input type="hidden" name="response" value="Approved by admin">
+            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin_reject_request', request_id=r.id) }}" style="display:inline">
+            <input type="text" name="response" placeholder="Reason (optional)" class="form-control form-control-sm d-inline-block" style="width:220px">
+            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+          </form>
+          {% else %}
+            {{ r.response_message or '' }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    </div>
+  </div>
+{% endblock %}

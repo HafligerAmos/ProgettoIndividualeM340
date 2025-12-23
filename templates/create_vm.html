@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Create VM</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.vm_type.label(class="form-label") }}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="vm_type" id="bronze" value="bronze" required>
+                    <label class="form-check-label" for="bronze">
+                        <strong>Bronze</strong><br>
+                        1 CPU, 512 MB RAM, 4 GB HDD
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="vm_type" id="silver" value="silver">
+                    <label class="form-check-label" for="silver">
+                        <strong>Silver</strong><br>
+                        2 CPU, 1024 MB RAM, 6 GB HDD
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="vm_type" id="gold" value="gold">
+                    <label class="form-check-label" for="gold">
+                        <strong>Gold</strong><br>
+                        2 CPU, 1024 MB RAM, 8 GB HDD
+                    </label>
+                </div>
+            </div>
+            {{ form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

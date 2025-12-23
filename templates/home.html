@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card p-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Your VMs</h4>
+                {% if current_user.is_authenticated and (current_user.is_admin or current_user.username == 'admin') %}
+                    <a href="{{ url_for('create_vm') }}" class="btn btn-sm btn-outline-primary">Create New VM</a>
+                {% else %}
+                    <a href="{{ url_for('request_vm') }}" class="btn btn-sm btn-primary">Request VM</a>
+                {% endif %}
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr><th>Name</th><th>Type</th><th>IP</th><th>SSH User</th><th>SSH Password</th><th>Azioni</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for vm in vms %}
+                        <tr>
+                            <td>{{ vm.name }}</td>
+                            <td>{{ vm.type }}</td>
+                            <td>{{ vm.ip or 'attendere assegnazione IP' }}</td>
+                            <td>{{ vm.ssh_user }}</td>
+                            <td>{{ vm.ssh_password }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('refresh_vm_ip', vm_id=vm.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Ottieni IP</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-muted">No VMs yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Your Requests</h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Response / Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td>{{ r.vm_type }}</td>
+                            <td title="{{ r.message }}">{{ (r.message[:60] ~ ('...' if r.message and r.message|length > 60 else '')) if r.message else '-' }}</td>
+                            <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if r.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif r.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif r.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% elif r.status == 'failed' %}
+                                    <span class="badge bg-secondary">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ r.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">
+                                {% if r.response_message %}
+                                    <div>{{ r.response_message }}</div>
+                                {% endif %}
+                                {% if r.vm %}
+                                    <div class="mt-1">
+                                        <strong>SSH:</strong> {{ r.vm.ssh_user }} / {{ r.vm.ssh_password }}<br>
+                                        <span class="text-muted">IP: {{ r.vm.ip or 'attendere assegnazione IP' }}</span>
+                                    </div>
+                                {% elif r.status == 'approved' %}
+                                    <span class="text-muted">VM in provisioning...</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-muted">No requests yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
